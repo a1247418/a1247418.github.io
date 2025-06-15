@@ -316,8 +316,22 @@ const AsciiGameOfLife = () => {
       
       updateAges(state.currentGrid, state.ageGrid);
       render(state.currentGrid, state.ageGrid, state.noiseGrid);
-      
-      animationRef.current = requestAnimationFrame(animate);
+
+      const loop = () => {
+        animationRef.current = requestAnimationFrame((timestamp) => {
+          const needsUpdate =
+              timestamp - state.lastGameUpdate >= gameSpeed ||
+              timestamp - state.lastRandomSpawn >= randomSpawnInterval ||
+              timestamp - state.lastNoiseUpdate >= noiseUpdateInterval;
+
+          if (needsUpdate) {
+            animate(timestamp);
+          } else {
+            animationRef.current = requestAnimationFrame(loop);
+          }
+        });
+      };
+      loop();
     };
 
     // Initialize
